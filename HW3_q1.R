@@ -59,4 +59,31 @@ community_2b <- fastgreedy.community(undirected_2, weights = E(undirected_2)$wei
 m_2b <- modularity(community_2b)
 s_2b <- sizes(community_2b)
 
+####################  QUESTION 4 ####################
+
+# Sub GCC
+max_com_index <- which.max(s_2b)
+non_sub_GCC_nodes <- (1:vcount(undirected_2))[community_2b$membership != max_com_index]
+sub_GCC <- delete.vertices(undirected_2, non_sub_GCC_nodes)
+
+# Sub GCC Community
+sub_GCC_com <- fastgreedy.community(sub_GCC, weights=E(sub_GCC)$weights)
+sub_GCC_m <- modularity(sub_GCC_com)
+sub_GCC_s <- sizes(sub_GCC_com)
+
+####################  QUESTION 5 ####################
+
+large_community_index = which(sizes(community_2b) > 100)
+
+for (i in 1:length(large_community_index)) {
+  nodes_to_del <- (1:vcount(undirected_2))[community_2b$membership != large_community_index[i]]
+  temp_sub_graph <- delete.vertices(undirected_2, nodes_to_del)
+  temp_sub_com <- fastgreedy.community(temp_sub_graph)
+  # Print results
+  cat('\n Sub-Community number', i , 'whose size greater than 100 \n')
+  cat('Modularity: ',modularity(temp_sub_com),'\n')
+  print(sizes(temp_sub_com))
+  cat('\n')
+}
+
 
