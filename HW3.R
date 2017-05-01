@@ -103,4 +103,45 @@ for (i in 1:length(large_community_index)) {
   cat('\n')
 }
 
+####################  QUESTION 6 ####################
+cat('\n #################### QUESTION 6 #################### \n')
+
+
+THRESHOLD = 0.3 # use to set threshold value
+
+# Select Community 
+#     OPTION = community_1 (option 1 with label.propagation.community)
+#     OPTION = community_2a (option 2 with label.propagation.community)
+#     OPTION = community_2b (option 2 with fastgreedy.community)
+
+OPTION = community_2a
+
+multi_com = numeric()
+
+# visit probability of each node
+for (i in 1:vcount(g1))
+{
+  tele_prob = rep(0,vcount(g1)) # a vector of 0's equal to the number of nodes in g1
+  tele_prob[i] = 1 # set corresponding node prob to 1 (all other nodes are 0)
+  
+  visit_prob = netrw(g1,walker.num = 1, start.node = i, damping = 0.85, teleport.prob = tele_prob, output.visit.prob = TRUE)$ave.visit.prob # random walk from node i 
+  
+  sorted_visit_prob = sort(visit_prob, decreasing = TRUE, index.return = TRUE) # sort in decreasing order (v_j)
+  M_i = rep(0,length(OPTION)) # vector of 0's corresponding to number of communities in selected option (1 or 2)
+  
+  for (j in 1:30) # only use top 30 visit probabilities
+  {
+    m_j = rep(0, length(OPTION))
+    rnd_walk_nodes = V(g1)[sorted_visit_prob$ix[j]]
+    GCC_nodes = V(gcc)
+    m_j[ OPTION$membership[ which( GCC_nodes == rnd_walk_nodes ) ] ] = 1
+    M_i = M_i + sorted_visit_prob$x[j] * m_j # sum formula ( M_i = sum(v_j*m_j) )
+  }
+  
+  if (length(which(M_i > THRESHOLD)) >= 2 )
+  {
+    multi_com = c(multi_com,i) # add nodes to list with multi communities
+  }
+}
+
 
